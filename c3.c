@@ -1,3 +1,16 @@
+/*Author:  Duy Do
+Email:   ddo@csu.fullerton.edu
+Course:  CPSC 240
+Assignment:  7
+Due date:  05/14/2015
+
+Name of this file:  c3
+
+GNU compiler:  gcc -c c3.c -o c3.o
+
+Purpose:  This is subprogram number <3> out of 6 designed for the purpose of investigating the role of the system stack in process of calling subprograms.
+
+*/
 #include <stdio.h>
 
 extern long c4(long);

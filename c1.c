@@ -1,3 +1,17 @@
+/*Author:  Duy Do
+Email:   ddo@csu.fullerton.edu
+Course:  CPSC 240
+Assignment:  7
+Due date:  05/14/2015
+
+Name of this file:  c1
+
+GNU compiler:  gcc -c c1.c -o c1.o
+
+Purpose:  This is subprogram number <1> out of 6 designed for the purpose of investigating the role of the system stack in process of calling subprograms.
+
+*/
+
 #include <stdio.h>
 
 extern long c2();

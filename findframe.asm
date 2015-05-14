@@ -1,52 +1,31 @@
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3=========4=========5=========6=========7**
-;Author information
-;  Author name: Floyd Holliday
-;  Author email: holliday@fullerton.edu or activeprofessor@yahoo.com
-;  Author location: Barstow, California
-;Course information
-;  Course number: CPSC240
-;  Assignment number: 8
-;  Due date: 2015-Aug-25
-;Project information
-;  Project title: Hack the stack
-;  Purpose: This is a reverse engineering experiment.  The purpose of this suite of programs is to help investigate how C and C++ use the system stack.
-;  Status: No known errors
-;  Project files: program-p0.c, program-p1.c, program-p2.asm, program-p3.c, program-p4.asm
-;  Project references: Intel Processor Identification and the CPUID Instruction, Application Note 485, revised May 2012 (App-Note 485).
-;Module information
-;  This module's call name: program-p4.asm
-;  Language: X86-64
-;  Syntax: Intel
-;  History: 
-;  Date last modified: 2015-April-15 (source code).
-;  Purpose: This program serves to call dumpstack.  It also shows the importance of "mov rbp, rsp" during backup of GPRs.  
-;  File name: program-p4.asm
-;  Status: This program works correctly.  It is very simple
-;  Future enhancements: Nothing more to do.
-;Translator information
+;Author:  Duy Do
+;Email:   ddo@csu.fullerton.edu
+;Course:  CPSC 240
+;Assignment:  7
+;Due date:  05/14/2015
+;Name of this file:  findframe.asm
+;
+;Purpose:  This is subprogram number <1> out of 6 designed for the purpose of investigating the role of the system stack in process of calling subprograms.
+;
 ;  Linux: nasm -f elf64 -l findframe.lis -o findframe.o findframe.asm
 ;References and credits
-;  http://www.drpaulcarter.com/pcasm/index.php
+;  http://www.drpaulcarter.com/pcasm/index.php, investigate-stack - Prof. Holliday
 ;Format information
 ;  Page width: 172 columns
 ;  Begin comments: 61
 ;  Optimal print specification: Landscape, 7 points, monospace, 8½x11 paper
-;Permissions
-;  The source code is free for use by members of the 240 programming course.  You should credit this source if you borrow executable statements from this program.  The
-;  instructions are free to use, but the borrower must create his or her own comments.  The comments belong to the author.
 
 ;===== Begin area for source code ==========================================================================================================================================
-%include "debug.inc"                                        ;This statement makes the debugger available to this program.  However, the debugger is not currently in use.
-                                                            ;Therefore, the statement is commented out.  The include is an example of an assembler directive.  Here the
-                                                            ;assembler will insert the source code of the debugger.
+%include "debug.inc"
 
 extern printf                                               ;This function will be linked into the executable by the linker
 
-global findframe                                                   ;Make this program callable by modules outside this file
+global findframe                                            ;Make this program callable by modules outside this file
 
 segment .data                                               ;Place initialized data in this segment
 
-welcome db "Welcome to an investigation of the use of the stack by C language.  This message outputted by program p4", 10, 0
+welcome db "Welcome to an investigation of the use of the stack by C language.  This message outputted by program findframe ", 10, 0
 specifierforstringdata db "%s", 0
 newline db 10, 0
 rbpmessage db "Addresses of rbp.", 10, 0
@@ -60,7 +39,7 @@ backuparea resb 832                                         ;Create an array for
 
 segment .text                                               ;Place executable statements in this segment
 
-findframe:                                                         ;Entry point: execution will begin here.
+findframe:                                                  ;Entry point: execution will begin here.
 
 ;=========== Back up all the GPR registers except rax, rsp, and rip.  That means 15 GPRs are backed up. ===================================================================
 
@@ -106,24 +85,28 @@ mov       rdi, specifierforstringdata                       ;"%s"
 mov       rsi, welcome                                      ;"This program will show the stack to allow the user . . ."
 call      printf                                            ;Use external function to handle the output
 
-;Visually inspect the stack.
+;===== Visually inspect the stack.
+
 mov       r11, rbp                                          ;Copy the original value of rbp to a safe place for a short time
 mov       rbp, rsp                                          ;The starting address for dumpstack must be in rbp
 dumpstack 45,0,50                                           ;View 60 quadwords of stack
 mov       rbp, r11                                          ;Restore original value to rbp
 
 
-mov r10,  0x401EC0;
+mov r15,  0x401EC0;
+
+;===== Print out the address of rbp
 
 mov rax, 0
 mov rdi, specifierforstringdata
 mov rsi, rbpmessage
 call printf
 
-;While loop
+;==== while loop to loop back to the program c1 and print of the address of rbp
+
 startloop:
 
-  cmp [rbp], r10
+  cmp [rbp], r15
   je endloop
 
   mov rax, 0
@@ -135,6 +118,7 @@ startloop:
   jmp startloop
 
 endloop:
+
 ;After inspecting the stack, change the value 8 to 16383
 
 mov qword [rsp + 368], 16383
